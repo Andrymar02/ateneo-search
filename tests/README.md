@@ -7,7 +7,13 @@ meno di un secondo e non servono i pesi di sentence-transformers.
 
 Setup e uso:
 ```bash
-source .venv/bin/activate
-pip install -r requirements-dev.txt
-pytest tests/ -v
+.venv/bin/python -m pip install -r requirements-dev.txt
+.venv/bin/python -m pytest tests/ -v
 ```
+
+Percorso esplicito (`.venv/bin/python -m ...`) invece di `source
+.venv/bin/activate` + comando nudo: se conda è installato e attivo
+(`(base)` nel prompt), il suo hook di shell può reinserirsi davanti al
+venv nel `PATH` anche dopo l'activate, facendo eseguire `pytest`/`pip`
+di conda invece che quelli del venv — capita in silenzio, senza errore
+di attivazione. Il percorso esplicito lo evita del tutto.

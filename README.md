@@ -33,14 +33,20 @@ data/                 PDF originali e indici generati — MAI versionati (vedi s
 
 ```bash
 python3 -m venv .venv --upgrade-deps
-source .venv/bin/activate
-pip install -r requirements.txt          # pipeline
-pip install -r requirements-dev.txt       # + test automatici
+.venv/bin/python -m pip install -r requirements.txt          # pipeline
+.venv/bin/python -m pip install -r requirements-dev.txt       # + test automatici
 ```
 
 Richiede un Python il cui modulo `sqlite3` supporti il caricamento di
 estensioni (`enable_load_extension`), necessario per sqlite-vec: il
 Python di sistema di Apple (Command Line Tools) **non** lo supporta.
+
+Nei comandi qui sotto uso sempre `.venv/bin/python -m ...` invece di
+`source .venv/bin/activate` + comando nudo: se conda è installato e
+attivo, il suo hook di shell a volte si reinserisce davanti al venv
+nel `PATH` anche dopo l'activate, ed eseguiresti `pytest`/`pip`/`uvicorn`
+di conda invece che quelli del venv, senza nessun errore evidente. Il
+percorso esplicito lo evita del tutto.
 
 ## Uso
 
@@ -48,11 +54,11 @@ Python di sistema di Apple (Command Line Tools) **non** lo supporta.
 # 1. metti i tuoi PDF in data/raw/ (cartella ignorata da git)
 
 # 2. costruisci un indice (un file .db per ogni configurazione testata)
-python -m ingestione.indicizzazione data/raw --chunk-size 300 --overlap 50 --modello BAAI/bge-m3
+.venv/bin/python -m ingestione.indicizzazione data/raw --chunk-size 300 --overlap 50 --modello BAAI/bge-m3
 
 # 3. avvia l'API
 cp .env.example .env   # personalizza INDICE_DB se serve
-uvicorn api.main:app --reload
+.venv/bin/python -m uvicorn api.main:app --reload
 
 # 4. interroga
 curl "http://127.0.0.1:8000/cerca?domanda=cosa+sono+le+liste+in+python&k=5"
@@ -66,8 +72,8 @@ permette di confrontare configurazioni diverse con numeri, non a
 sensazione.
 
 ```bash
-python -m eval.valuta data/index/idx_bge-m3_cs300_ov50.db
-python -m eval.valuta data/index/idx_bge-m3_cs300_ov50.db data/index/idx_cs300_ov50.db --k 3
+.venv/bin/python -m eval.valuta data/index/idx_bge-m3_cs300_ov50.db
+.venv/bin/python -m eval.valuta data/index/idx_bge-m3_cs300_ov50.db data/index/idx_cs300_ov50.db --k 3
 ```
 
 Stato attuale: recall@5 = 93% con `bge-m3` (chunk_size=300, overlap=50),
