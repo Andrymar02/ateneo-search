@@ -44,9 +44,9 @@ def crea_schema(conn: sqlite3.Connection, dimensione_embedding: int) -> None:
     """)
 
 
-def salva_meta(conn: sqlite3.Connection, chunk_size: int, overlap: int) -> None:
+def salva_meta(conn: sqlite3.Connection, nome_modello: str, chunk_size: int, overlap: int) -> None:
     valori = {
-        "modello": NOME_MODELLO,
+        "modello": nome_modello,
         "chunk_size": str(chunk_size),
         "overlap": str(overlap),
     }
@@ -66,11 +66,17 @@ def apri_connessione(percorso_db: Path) -> sqlite3.Connection:
     return conn
 
 
-def indicizza_cartella(cartella_pdf: Path, percorso_db: Path, chunk_size: int, overlap: int) -> None:
-    modello = SentenceTransformer(NOME_MODELLO)
+def indicizza_cartella(
+    cartella_pdf: Path,
+    percorso_db: Path,
+    chunk_size: int,
+    overlap: int,
+    nome_modello: str = NOME_MODELLO,
+) -> None:
+    modello = SentenceTransformer(nome_modello)
     conn = apri_connessione(percorso_db)
     crea_schema(conn, modello.get_embedding_dimension())
-    salva_meta(conn, chunk_size, overlap)
+    salva_meta(conn, nome_modello, chunk_size, overlap)
 
     pdf_trovati = sorted(cartella_pdf.glob("*.pdf"))
     if not pdf_trovati:
@@ -114,9 +120,10 @@ if __name__ == "__main__":
     parser.add_argument("--chunk-size", type=int, default=300)
     parser.add_argument("--overlap", type=int, default=50)
     parser.add_argument("--output", type=Path, default=None)
+    parser.add_argument("--modello", default=NOME_MODELLO)
     args = parser.parse_args()
 
     output = args.output or (
         Path("data/index") / f"idx_cs{args.chunk_size}_ov{args.overlap}.db"
     )
-    indicizza_cartella(args.cartella_pdf, output, args.chunk_size, args.overlap)
+    indicizza_cartella(args.cartella_pdf, output, args.chunk_size, args.overlap, args.modello)

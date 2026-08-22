@@ -13,7 +13,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from sentence_transformers import SentenceTransformer
 
-from retrieval.cerca import NOME_MODELLO, apri_connessione, cerca
+from retrieval.cerca import apri_connessione, cerca, leggi_modello
 
 load_dotenv()
 
@@ -29,7 +29,10 @@ async def ciclo_vita(app: FastAPI):
             f"Indice non trovato: {PERCORSO_INDICE}. "
             "Costruiscilo con: python -m ingestione.indicizzazione"
         )
-    stato["modello"] = SentenceTransformer(NOME_MODELLO)
+    conn = apri_connessione(PERCORSO_INDICE)
+    nome_modello = leggi_modello(conn)
+    conn.close()
+    stato["modello"] = SentenceTransformer(nome_modello)
     yield
     stato.clear()
 

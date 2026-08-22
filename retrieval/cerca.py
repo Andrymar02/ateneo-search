@@ -22,6 +22,16 @@ def apri_connessione(percorso_db: Path) -> sqlite3.Connection:
     return conn
 
 
+def leggi_modello(conn: sqlite3.Connection) -> str:
+    """Legge il nome del modello di embedding con cui è stato costruito
+    l'indice, dalla tabella meta — mai assumerlo fisso: un indice può
+    essere stato costruito con un modello diverso da quello di default."""
+    riga = conn.execute("select valore from meta where chiave = 'modello'").fetchone()
+    if riga is None:
+        raise ValueError("indice senza tabella meta: ricostruiscilo con la versione attuale di indicizzazione.py")
+    return riga[0]
+
+
 def cerca(
     conn: sqlite3.Connection,
     modello: SentenceTransformer,
@@ -60,8 +70,8 @@ if __name__ == "__main__":
     parser.add_argument("--k", type=int, default=5)
     args = parser.parse_args()
 
-    modello = SentenceTransformer(NOME_MODELLO)
     conn = apri_connessione(args.indice)
+    modello = SentenceTransformer(leggi_modello(conn))
     for r in cerca(conn, modello, args.domanda, args.k):
         print(f"[{r['distanza']:.3f}] {r['file']} p.{r['pagina_inizio']}-{r['pagina_fine']}")
         print(f"  {r['testo'][:150]}")

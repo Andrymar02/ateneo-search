@@ -16,7 +16,7 @@ from pathlib import Path
 
 from sentence_transformers import SentenceTransformer
 
-from retrieval.cerca import NOME_MODELLO, apri_connessione, cerca
+from retrieval.cerca import apri_connessione, cerca, leggi_modello
 
 
 def carica_domande(percorso: Path) -> list[dict]:
@@ -30,6 +30,8 @@ def carica_domande(percorso: Path) -> list[dict]:
 
 
 def valuta_indice(percorso_db: Path, domande: list[dict], modello: SentenceTransformer, k: int) -> dict:
+    """modello: già istanziato per il modello registrato in questo indice
+    (vedi il ciclo in __main__, che usa una cache per nome modello)."""
     conn = apri_connessione(percorso_db)
     dettaglio = []
     for d in domande:
@@ -70,8 +72,15 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     domande = carica_domande(args.domande)
-    modello = SentenceTransformer(NOME_MODELLO)
+    modelli_in_cache: dict[str, SentenceTransformer] = {}
 
     for percorso_db in args.indici:
-        report = valuta_indice(percorso_db, domande, modello, args.k)
+        conn = apri_connessione(percorso_db)
+        nome_modello = leggi_modello(conn)
+        conn.close()
+
+        if nome_modello not in modelli_in_cache:
+            modelli_in_cache[nome_modello] = SentenceTransformer(nome_modello)
+
+        report = valuta_indice(percorso_db, domande, modelli_in_cache[nome_modello], args.k)
         stampa_report(percorso_db, report)
