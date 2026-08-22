@@ -1,8 +1,8 @@
 """Ricerca vettoriale su un indice SQLite + sqlite-vec.
 
-Punto unico da cui passa ogni ricerca (usato da eval/valuta.py e, in
-futuro, da api/): tiene la query SQL e la convenzione del modello E5
-("query: " davanti alla domanda) in un solo posto.
+Punto unico da cui passa ogni ricerca (usato da eval/valuta.py, api/ e
+ingestione/indicizzazione.py): tiene la query SQL e le convenzioni di
+prefisso specifiche di ciascun modello in un solo posto.
 """
 
 import sqlite3
@@ -11,7 +11,21 @@ from pathlib import Path
 import sqlite_vec
 from sentence_transformers import SentenceTransformer
 
-NOME_MODELLO = "intfloat/multilingual-e5-small"
+NOME_MODELLO = "BAAI/bge-m3"
+
+# Alcuni modelli (es. la famiglia E5) richiedono un prefisso testuale
+# diverso per query e passage/document; non è nei metadati del modello
+# stesso (verificato: anche per e5 i "prompts" di sentence-transformers
+# sono vuoti), è solo documentato nella scheda del modello. Lo teniamo
+# esplicito qui invece di dimenticarcelo al prossimo modello nuovo.
+# Default (bge-m3 compreso): nessun prefisso.
+CONVENZIONI_PROMPT: dict[str, dict[str, str]] = {
+    "intfloat/multilingual-e5-small": {"query": "query: ", "passage": "passage: "},
+}
+
+
+def prefisso(nome_modello: str, tipo: str) -> str:
+    return CONVENZIONI_PROMPT.get(nome_modello, {}).get(tipo, "")
 
 
 def apri_connessione(percorso_db: Path) -> sqlite3.Connection:
@@ -44,7 +58,9 @@ def cerca(
     Ogni risultato: {"file": str, "pagina_inizio": int, "pagina_fine": int,
     "testo": str, "distanza": float} (distanza crescente = meno simile).
     """
-    vettore = modello.encode(f"query: {domanda}", normalize_embeddings=True)
+    nome_modello = leggi_modello(conn)
+    testo_query = prefisso(nome_modello, "query") + domanda
+    vettore = modello.encode(testo_query, normalize_embeddings=True)
     righe = conn.execute(
         """
         select c.file, c.pagina_inizio, c.pagina_fine, c.testo, distance

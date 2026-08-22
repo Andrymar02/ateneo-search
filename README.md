@@ -13,7 +13,7 @@ chiave API, nessun servizio esterno.
 ## Stack
 
 - **pdfplumber** — estrazione del testo dai PDF, pagina per pagina
-- **sentence-transformers** (`intfloat/multilingual-e5-small`) — embedding, in locale
+- **sentence-transformers** (`BAAI/bge-m3`) — embedding, in locale
 - **SQLite + sqlite-vec** — indice vettoriale, un file per configurazione testata
 - **FastAPI** — API di ricerca
 - **React** — interfaccia (ultimo pezzo, non ancora fatto)
@@ -48,7 +48,7 @@ Python di sistema di Apple (Command Line Tools) **non** lo supporta.
 # 1. metti i tuoi PDF in data/raw/ (cartella ignorata da git)
 
 # 2. costruisci un indice (un file .db per ogni configurazione testata)
-python -m ingestione.indicizzazione data/raw --chunk-size 300 --overlap 50
+python -m ingestione.indicizzazione data/raw --chunk-size 300 --overlap 50 --modello BAAI/bge-m3
 
 # 3. avvia l'API
 cp .env.example .env   # personalizza INDICE_DB se serve
@@ -66,14 +66,15 @@ permette di confrontare configurazioni diverse con numeri, non a
 sensazione.
 
 ```bash
-python -m eval.valuta data/index/idx_cs300_ov50.db
-python -m eval.valuta data/index/idx_cs150_ov30.db data/index/idx_cs500_ov100.db --k 3
+python -m eval.valuta data/index/idx_bge-m3_cs300_ov50.db
+python -m eval.valuta data/index/idx_bge-m3_cs300_ov50.db data/index/idx_cs300_ov50.db --k 3
 ```
 
-Stato attuale: recall@5 tra 50% e 57% a seconda della configurazione,
-su un set iniziale di 14 domande. Limiti misurati (non presunti) sono
-documentati in [`eval/README.md`](eval/README.md), insieme ai prossimi
-esperimenti candidati.
+Stato attuale: recall@5 = 93% con `bge-m3` (chunk_size=300, overlap=50),
+su un set iniziale di 14 domande — partito da 50% con il primo modello
+provato (`multilingual-e5-small`). Il percorso per arrivarci, coi numeri
+di ogni tappa e i limiti ancora aperti, è in
+[`eval/README.md`](eval/README.md).
 
 ## Materiali e copyright
 

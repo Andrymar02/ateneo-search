@@ -16,8 +16,9 @@ from sentence_transformers import SentenceTransformer
 
 from ingestione.chunking import crea_chunk
 from ingestione.estrazione_pdf import estrai_pagine
+from retrieval.cerca import prefisso
 
-NOME_MODELLO = "intfloat/multilingual-e5-small"
+NOME_MODELLO = "BAAI/bge-m3"
 
 
 def crea_schema(conn: sqlite3.Connection, dimensione_embedding: int) -> None:
@@ -91,7 +92,8 @@ def indicizza_cartella(
             print(f"{pdf.name}: 0 chunk (nessun testo estratto)")
             continue
 
-        testi_con_prefisso = [f"passage: {c['testo']}" for c in chunk]
+        prefisso_passage = prefisso(nome_modello, "passage")
+        testi_con_prefisso = [prefisso_passage + c["testo"] for c in chunk]
         embedding = modello.encode(testi_con_prefisso, normalize_embeddings=True)
 
         for c, vettore in zip(chunk, embedding):

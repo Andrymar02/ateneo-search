@@ -76,12 +76,13 @@ if __name__ == "__main__":
     from sentence_transformers import SentenceTransformer
 
     from ingestione.estrazione_pdf import estrai_pagine
+    from retrieval.cerca import NOME_MODELLO
 
     percorso = Path(sys.argv[1])
     chunk_size = int(sys.argv[2]) if len(sys.argv) > 2 else 200
     overlap = int(sys.argv[3]) if len(sys.argv) > 3 else 40
 
-    modello = SentenceTransformer("intfloat/multilingual-e5-small")
+    modello = SentenceTransformer(NOME_MODELLO)
     pagine = estrai_pagine(percorso)
     chunk = crea_chunk(pagine, modello.tokenizer, chunk_size, overlap)
 
