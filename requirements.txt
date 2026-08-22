@@ -1,1 +1,2 @@
 pdfplumber==0.11.10
+sentence-transformers==6.0.0
