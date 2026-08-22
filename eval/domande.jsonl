@@ -1,0 +1,14 @@
+{"domanda": "Come viene definita la classificazione (classification) in un problema di data mining?", "file_atteso": "10-DMClassification.pdf", "pagina_attesa": 4}
+{"domanda": "Qual è la differenza tra training set e test set?", "file_atteso": "10-DMClassification.pdf", "pagina_attesa": 5}
+{"domanda": "Cos'è ElasticSearch?", "file_atteso": "20-ElasticSearch.pdf", "pagina_attesa": 3}
+{"domanda": "Quali sono i passi principali di un processo di ricerca (search), dalla query al risultato mostrato?", "file_atteso": "20-ElasticSearch.pdf", "pagina_attesa": 2}
+{"domanda": "In C++, cosa distingue il costrutto class dal costrutto struct?", "file_atteso": "l02_1-TipiComposti.pdf", "pagina_attesa": 2}
+{"domanda": "Quali funzioni OLAP sono disponibili in SQL per l'analisi dei dati?", "file_atteso": "DSTBD_DW-Oracle.pdf", "pagina_attesa": 3}
+{"domanda": "Qual è la corrispondenza approssimativa tra i concetti di un database relazionale e quelli di MongoDB?", "file_atteso": "MongoDB-for-Data-Science-seminar.pdf", "pagina_attesa": 3}
+{"domanda": "Cos'è il formato BSON usato da MongoDB?", "file_atteso": "MongoDB-for-Data-Science-seminar.pdf", "pagina_attesa": 4}
+{"domanda": "Perché serve il controllo di concorrenza (concurrency control) in un DBMS?", "file_atteso": "17-ConcurrencyControl_new.pdf", "pagina_attesa": 3}
+{"domanda": "Quali sono le operazioni elementari di I/O su un singolo dato in un DBMS?", "file_atteso": "17-ConcurrencyControl_new.pdf", "pagina_attesa": 4}
+{"domanda": "Cos'è un iteratore?", "file_atteso": "l04_1-Iteratori.pdf", "pagina_attesa": 2}
+{"domanda": "Quali sono le tre interpretazioni della probabilità presentate a lezione?", "file_atteso": "6_Probability.pdf", "pagina_attesa": 3}
+{"domanda": "Cosa succede facendo lo slicing di una lista Python con uno step negativo, tipo l[0:5:-1]?", "file_atteso": "1_Python.pdf", "pagina_attesa": 22}
+{"domanda": "Cosa significa che un valore è posseduto da una variabile in Rust?", "file_atteso": "l01_3-Possesso.pdf", "pagina_attesa": 2}
