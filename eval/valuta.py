@@ -12,13 +12,11 @@ Uso:
 
 import argparse
 import json
-import sqlite3
 from pathlib import Path
 
-import sqlite_vec
 from sentence_transformers import SentenceTransformer
 
-NOME_MODELLO = "intfloat/multilingual-e5-small"
+from retrieval.cerca import NOME_MODELLO, apri_connessione, cerca
 
 
 def carica_domande(percorso: Path) -> list[dict]:
@@ -31,36 +29,14 @@ def carica_domande(percorso: Path) -> list[dict]:
     return domande
 
 
-def apri_connessione(percorso_db: Path) -> sqlite3.Connection:
-    conn = sqlite3.connect(percorso_db)
-    conn.enable_load_extension(True)
-    sqlite_vec.load(conn)
-    conn.enable_load_extension(False)
-    return conn
-
-
-def cerca(conn: sqlite3.Connection, modello: SentenceTransformer, domanda: str, k: int) -> list[tuple]:
-    vettore = modello.encode(f"query: {domanda}", normalize_embeddings=True)
-    return conn.execute(
-        """
-        select c.file, c.pagina_inizio, c.pagina_fine, distance
-        from chunk_vec
-        join chunk c on c.id = chunk_vec.rowid
-        where chunk_vec.embedding match ? and k = ?
-        order by distance
-        """,
-        [sqlite_vec.serialize_float32(vettore.tolist()), k],
-    ).fetchall()
-
-
 def valuta_indice(percorso_db: Path, domande: list[dict], modello: SentenceTransformer, k: int) -> dict:
     conn = apri_connessione(percorso_db)
     dettaglio = []
     for d in domande:
-        righe = cerca(conn, modello, d["domanda"], k)
+        risultati = cerca(conn, modello, d["domanda"], k)
         posizione_trovata = None
-        for posizione, (file, p1, p2, _dist) in enumerate(righe, start=1):
-            if file == d["file_atteso"] and p1 <= d["pagina_attesa"] <= p2:
+        for posizione, r in enumerate(risultati, start=1):
+            if r["file"] == d["file_atteso"] and r["pagina_inizio"] <= d["pagina_attesa"] <= r["pagina_fine"]:
                 posizione_trovata = posizione
                 break
         dettaglio.append({**d, "trovata_in_posizione": posizione_trovata})

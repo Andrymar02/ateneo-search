@@ -27,6 +27,6 @@ primi k risultati della ricerca vettoriale. Accetta uno o più indici,
 utile per confrontare configurazioni diverse:
 
 ```bash
-python eval/valuta.py data/index/idx_cs300_ov50.db
-python eval/valuta.py data/index/idx_cs150_ov30.db data/index/idx_cs500_ov100.db --k 3
+python -m eval.valuta data/index/idx_cs300_ov50.db
+python -m eval.valuta data/index/idx_cs150_ov30.db data/index/idx_cs500_ov100.db --k 3
 ```
