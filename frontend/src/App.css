@@ -1,48 +1,87 @@
 .pagina {
   max-width: 680px;
   margin: 0 auto;
-  padding: 2.5rem 1.5rem;
-  font-family: system-ui, -apple-system, sans-serif;
-  color: var(--testo);
-  background: var(--bg);
+  padding: 4rem 1.5rem 3rem;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+.intestazione {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.badge {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--accento);
+  background: var(--accento-soft);
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  margin-bottom: 1rem;
 }
 
 h1 {
-  font-size: 1.5rem;
-  margin-bottom: 0.25rem;
+  font-size: 2.25rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0 0 0.6rem;
 }
 
 .sottotitolo {
   color: var(--testo-secondario);
-  font-size: 0.9rem;
-  line-height: 1.4;
-  margin-bottom: 1.5rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  max-width: 46ch;
+  margin: 0 auto;
 }
 
 .form-ricerca {
   display: flex;
-  gap: 0.5rem;
-  margin-bottom: 1.5rem;
+  gap: 0.6rem;
+  background: var(--superficie);
+  border: 1px solid var(--bordo);
+  border-radius: 16px;
+  padding: 0.6rem;
+  box-shadow: var(--ombra);
+  margin-bottom: 1rem;
 }
 
 .form-ricerca input {
   flex: 1;
-  padding: 0.6rem 0.8rem;
+  min-width: 0;
+  padding: 0.7rem 0.9rem;
   font-size: 1rem;
-  border: 1px solid var(--bordo-input);
-  border-radius: 6px;
-  background: var(--bg);
+  font-family: inherit;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
   color: var(--testo);
 }
 
+.form-ricerca input:focus {
+  outline: none;
+}
+
+.form-ricerca input::placeholder {
+  color: var(--testo-terziario);
+}
+
 .form-ricerca button {
-  padding: 0.6rem 1.2rem;
+  padding: 0.7rem 1.4rem;
   font-size: 1rem;
+  font-weight: 600;
+  font-family: inherit;
   border: none;
-  border-radius: 6px;
-  background: var(--bottone-bg);
-  color: var(--bottone-testo);
+  border-radius: 10px;
+  background: var(--accento);
+  color: var(--accento-testo);
   cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.form-ricerca button:hover:not(:disabled) {
+  opacity: 0.9;
 }
 
 .form-ricerca button:disabled {
@@ -50,27 +89,63 @@ h1 {
   cursor: default;
 }
 
+.esempi {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+
+.esempi-etichetta {
+  font-size: 0.8rem;
+  color: var(--testo-terziario);
+}
+
+.chip {
+  font-family: inherit;
+  font-size: 0.8rem;
+  color: var(--testo-secondario);
+  background: var(--superficie);
+  border: 1px solid var(--bordo);
+  border-radius: 999px;
+  padding: 0.4rem 0.8rem;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.chip:hover {
+  border-color: var(--accento);
+  color: var(--accento);
+}
+
 .errore {
   color: var(--errore);
   font-size: 0.9rem;
+  text-align: center;
 }
 
 .risposta-generata {
-  background: var(--bordo);
-  border-radius: 8px;
-  padding: 1rem;
+  background: var(--superficie);
+  border: 1px solid var(--bordo);
+  border-left: 3px solid var(--accento);
+  border-radius: 12px;
+  box-shadow: var(--ombra);
+  padding: 1.1rem 1.3rem;
   font-size: 0.95rem;
-  line-height: 1.55;
+  line-height: 1.6;
   white-space: pre-wrap;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.75rem;
 }
 
 .titolo-fonti {
   font-size: 0.75rem;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--testo-secondario);
-  margin: 0 0 0.6rem;
+  letter-spacing: 0.06em;
+  color: var(--testo-terziario);
+  margin: 0 0 0.7rem;
 }
 
 .risultati {
@@ -78,26 +153,43 @@ h1 {
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.75rem;
 }
 
 .risultato {
+  background: var(--superficie);
   border: 1px solid var(--bordo);
-  border-radius: 8px;
-  padding: 0.9rem 1rem;
+  border-radius: 10px;
+  padding: 0.85rem 1rem;
 }
 
 .citazione {
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   font-weight: 600;
-  color: var(--testo-secondario);
+  color: var(--accento);
   margin-bottom: 0.4rem;
 }
 
 .testo {
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   line-height: 1.5;
+  color: var(--testo-secondario);
   white-space: pre-wrap;
   margin: 0;
-  color: var(--testo);
+}
+
+.piede {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 3rem;
+}
+
+.chip-tech {
+  font-size: 0.72rem;
+  font-family: ui-monospace, monospace;
+  color: var(--testo-terziario);
+  background: var(--accento-soft);
+  border-radius: 6px;
+  padding: 0.25rem 0.5rem;
 }
