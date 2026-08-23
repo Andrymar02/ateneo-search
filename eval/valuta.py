@@ -6,8 +6,8 @@ chunk conta come "trovato" se il suo file coincide con quello atteso e
 la pagina attesa cade nel suo intervallo [pagina_inizio, pagina_fine].
 
 Uso:
-    python eval/valuta.py data/index/idx_cs300_ov50.db
-    python eval/valuta.py data/index/idx_cs300_ov50.db data/index/idx_cs150_ov30.db --k 3
+    python -m eval.valuta data/index/idx_bge-m3_cs300_ov50.db
+    python -m eval.valuta data/index/idx_bge-m3_cs300_ov50.db --modo ibrido
 """
 
 import argparse
@@ -16,7 +16,7 @@ from pathlib import Path
 
 from sentence_transformers import SentenceTransformer
 
-from retrieval.cerca import apri_connessione, cerca, leggi_modello
+from retrieval.cerca import apri_connessione, cerca, cerca_ibrida, leggi_modello
 
 
 def carica_domande(percorso: Path) -> list[dict]:
@@ -29,13 +29,19 @@ def carica_domande(percorso: Path) -> list[dict]:
     return domande
 
 
-def valuta_indice(percorso_db: Path, domande: list[dict], modello: SentenceTransformer, k: int) -> dict:
+def valuta_indice(
+    percorso_db: Path, domande: list[dict], modello: SentenceTransformer, k: int, modo: str = "vettoriale"
+) -> dict:
     """modello: già istanziato per il modello registrato in questo indice
-    (vedi il ciclo in __main__, che usa una cache per nome modello)."""
+    (vedi il ciclo in __main__, che usa una cache per nome modello).
+    modo: "vettoriale" o "ibrido" (vettoriale + parole chiave, RRF)."""
     conn = apri_connessione(percorso_db)
     dettaglio = []
     for d in domande:
-        risultati = cerca(conn, modello, d["domanda"], k)
+        if modo == "ibrido":
+            risultati = cerca_ibrida(conn, modello, d["domanda"], k)
+        else:
+            risultati = cerca(conn, modello, d["domanda"], k)
         posizione_trovata = None
         for posizione, r in enumerate(risultati, start=1):
             if r["file"] == d["file_atteso"] and r["pagina_inizio"] <= d["pagina_attesa"] <= r["pagina_fine"]:
@@ -69,6 +75,7 @@ if __name__ == "__main__":
     parser.add_argument("indici", type=Path, nargs="+", help="uno o piu' file .db da valutare/confrontare")
     parser.add_argument("--domande", type=Path, default=Path("eval/domande.jsonl"))
     parser.add_argument("--k", type=int, default=5)
+    parser.add_argument("--modo", choices=["vettoriale", "ibrido"], default="vettoriale")
     args = parser.parse_args()
 
     domande = carica_domande(args.domande)
@@ -82,5 +89,5 @@ if __name__ == "__main__":
         if nome_modello not in modelli_in_cache:
             modelli_in_cache[nome_modello] = SentenceTransformer(nome_modello)
 
-        report = valuta_indice(percorso_db, domande, modelli_in_cache[nome_modello], args.k)
+        report = valuta_indice(percorso_db, domande, modelli_in_cache[nome_modello], args.k, args.modo)
         stampa_report(percorso_db, report)

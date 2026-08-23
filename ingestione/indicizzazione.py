@@ -1,10 +1,13 @@
-"""Costruisce un indice SQLite + sqlite-vec a partire dai PDF di una cartella.
+"""Costruisce un indice SQLite + sqlite-vec (+ FTS5) a partire dai PDF
+di una cartella.
 
 Ogni chunk viene salvato con file di origine, intervallo di pagine e testo
-(per la citazione verificabile) insieme al suo embedding (per la ricerca
-vettoriale). La configurazione usata (modello, chunk_size, overlap) viene
-scritta nella tabella meta dello stesso file .db, cosi' eval/ la legge
-senza doverla dedurre dal nome del file.
+(per la citazione verificabile), il suo embedding (chunk_vec, ricerca
+vettoriale) e il suo testo indicizzato per parole chiave (chunk_fts,
+usata dalla ricerca ibrida in retrieval/cerca.py). La configurazione
+usata (modello, chunk_size, overlap) viene scritta nella tabella meta
+dello stesso file .db, cosi' eval/ la legge senza doverla dedurre dal
+nome del file.
 """
 
 import argparse
@@ -36,6 +39,9 @@ def crea_schema(conn: sqlite3.Connection, dimensione_embedding: int) -> None:
         create virtual table if not exists chunk_vec using vec0(
             embedding float[{dimensione_embedding}]
         )
+    """)
+    conn.execute("""
+        create virtual table if not exists chunk_fts using fts5(testo)
     """)
     conn.execute("""
         create table if not exists meta (
@@ -106,6 +112,10 @@ def indicizza_cartella(
             conn.execute(
                 "insert into chunk_vec(rowid, embedding) values (?, ?)",
                 (id_chunk, sqlite_vec.serialize_float32(vettore.tolist())),
+            )
+            conn.execute(
+                "insert into chunk_fts(rowid, testo) values (?, ?)",
+                (id_chunk, c["testo"]),
             )
 
         print(f"{pdf.name}: {len(chunk)} chunk indicizzati")

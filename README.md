@@ -22,7 +22,7 @@ chiave API, nessun servizio esterno.
 
 ```
 ingestione/          estrazione PDF, chunking, indicizzazione
-retrieval/            ricerca vettoriale (unico punto di verità, riusato da eval/ e api/)
+retrieval/            ricerca vettoriale + ibrida (vettoriale+FTS5/RRF), unico punto di verità, riusato da eval/ e api/
 api/                  API FastAPI (GET /cerca)
 eval/                 domande con fonte attesa + script di misura del recall
 tests/                test automatici (pytest) su chunking ed estrazione

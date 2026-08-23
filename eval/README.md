@@ -28,7 +28,7 @@ utile per confrontare configurazioni diverse:
 
 ```bash
 python -m eval.valuta data/index/idx_bge-m3_cs300_ov50.db
-python -m eval.valuta data/index/idx_bge-m3_cs300_ov50.db data/index/idx_cs300_ov50.db --k 3
+python -m eval.valuta data/index/idx_bge-m3_cs300_ov50.db --modo ibrido
 ```
 
 ## Storia dei risultati (dalla diagnosi al fix)
@@ -65,6 +65,21 @@ presente in posizione 6 con k=15 — non un fallimento del retrieval,
 un caso ambiguo per costruzione (la stessa definizione compare, quasi
 identica, in almeno 3 corsi diversi).
 
-Non ancora testato: retrieval ibrido (ricerca vettoriale + parole
-chiave via FTS5 di SQLite), utile soprattutto quando la domanda cita
-termini esatti del testo originale.
+**Esperimento 2 — retrieval ibrido (vettoriale + FTS5, fuso con
+Reciprocal Rank Fusion).** Ipotesi: la ricerca per parole chiave non
+soffre del bias linguistico del punto 1, quindi potrebbe recuperare
+anche il caso ambiguo residuo. Risultato: recall@5 **invariato al
+93%**, stesso identico caso mancante — le posizioni cambiano (alcune
+domande salgono, altre scendono) ma il totale no. Controllando quel
+caso fino a k=15, l'ibrido lo trova in posizione 9 (peggio del
+vettoriale puro, posizione 6): "training set"/"test set" sono termini
+così comuni che anche la ricerca per parole chiave porta più
+concorrenza da altri file, non meno. Conferma pulita che non è un
+difetto del retrieval: è un caso ambiguo per costruzione del corpus
+(la stessa definizione, quasi identica, in almeno 3 corsi diversi).
+
+Il codice ibrido resta disponibile (`retrieval.cerca.cerca_ibrida`,
+`--modo ibrido` in `valuta.py`) perché non ha controindicazioni e
+potrebbe aiutare su domande future che citano termini esatti del
+testo — ma **non è il default dell'API**, perché su questo set di
+domande non ha mostrato un beneficio misurabile.
