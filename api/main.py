@@ -11,13 +11,15 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from sentence_transformers import SentenceTransformer
 
 from retrieval.cerca import apri_connessione, cerca, leggi_modello
 
 load_dotenv()
 
-PERCORSO_INDICE = Path(os.getenv("INDICE_DB", "data/index/idx_cs300_ov50.db"))
+PERCORSO_INDICE = Path(os.getenv("INDICE_DB", "data/index/idx_bge-m3_cs300_ov50.db"))
+ORIGINE_FRONTEND = os.getenv("FRONTEND_ORIGIN", "http://localhost:5173")
 
 stato: dict = {}
 
@@ -38,6 +40,13 @@ async def ciclo_vita(app: FastAPI):
 
 
 app = FastAPI(title="ateneo-search", lifespan=ciclo_vita)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[ORIGINE_FRONTEND],
+    allow_methods=["GET"],
+    allow_headers=["*"],
+)
 
 
 @app.get("/cerca")
