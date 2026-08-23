@@ -55,9 +55,22 @@ h1 {
   font-size: 0.9rem;
 }
 
-.vuoto {
+.risposta-generata {
+  background: var(--bordo);
+  border-radius: 8px;
+  padding: 1rem;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  margin-bottom: 1.5rem;
+}
+
+.titolo-fonti {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
   color: var(--testo-secondario);
-  font-size: 0.9rem;
+  margin: 0 0 0.6rem;
 }
 
 .risultati {

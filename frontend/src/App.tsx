@@ -1,12 +1,12 @@
 import { useState, type FormEvent } from "react";
-import { cerca, type Risultato } from "./api";
+import { rispondi, type Risultato } from "./api";
 import "./App.css";
 
 type Stato =
   | { fase: "inattivo" }
   | { fase: "in_corso" }
   | { fase: "errore"; messaggio: string }
-  | { fase: "completo"; risultati: Risultato[] };
+  | { fase: "completo"; risposta: string; fonti: Risultato[] };
 
 export default function App() {
   const [domanda, setDomanda] = useState("");
@@ -19,8 +19,8 @@ export default function App() {
 
     setStato({ fase: "in_corso" });
     try {
-      const risultati = await cerca(testo, 5);
-      setStato({ fase: "completo", risultati });
+      const { risposta, fonti } = await rispondi(testo, 5);
+      setStato({ fase: "completo", risposta, fonti });
     } catch (errore) {
       setStato({
         fase: "errore",
@@ -33,9 +33,9 @@ export default function App() {
     <main className="pagina">
       <h1>ateneo-search</h1>
       <p className="sottotitolo">
-        Cerca nei tuoi materiali di corso. Ogni risultato è il testo reale del
-        PDF, con file e pagina — nessuna risposta generata, nessuna citazione
-        da verificare.
+        Fai una domanda sui tuoi materiali di corso. La risposta è scritta da
+        un LLM locale che legge solo i passaggi recuperati qui sotto — sono
+        sempre visibili, verifica sempre contro quelli.
       </p>
 
       <form onSubmit={onSubmit} className="form-ricerca">
@@ -47,7 +47,7 @@ export default function App() {
           aria-label="Domanda"
         />
         <button type="submit" disabled={stato.fase === "in_corso"}>
-          {stato.fase === "in_corso" ? "Cerco…" : "Cerca"}
+          {stato.fase === "in_corso" ? "Penso…" : "Chiedi"}
         </button>
       </form>
 
@@ -57,22 +57,27 @@ export default function App() {
         </p>
       )}
 
-      {stato.fase === "completo" && stato.risultati.length === 0 && (
-        <p className="vuoto">Nessun risultato.</p>
-      )}
-
       {stato.fase === "completo" && (
-        <ul className="risultati">
-          {stato.risultati.map((r) => (
-            <li key={r.id} className="risultato">
-              <div className="citazione">
-                {r.file} — p.{r.pagina_inizio}
-                {r.pagina_fine !== r.pagina_inizio && `-${r.pagina_fine}`}
-              </div>
-              <p className="testo">{r.testo}</p>
-            </li>
-          ))}
-        </ul>
+        <>
+          <div className="risposta-generata">{stato.risposta}</div>
+
+          {stato.fonti.length > 0 && (
+            <>
+              <h2 className="titolo-fonti">Fonti</h2>
+              <ul className="risultati">
+                {stato.fonti.map((r) => (
+                  <li key={r.id} className="risultato">
+                    <div className="citazione">
+                      {r.file} — p.{r.pagina_inizio}
+                      {r.pagina_fine !== r.pagina_inizio && `-${r.pagina_fine}`}
+                    </div>
+                    <p className="testo">{r.testo}</p>
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+        </>
       )}
     </main>
   );

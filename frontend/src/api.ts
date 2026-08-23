@@ -11,10 +11,15 @@ export interface Risultato {
   distanza: number;
 }
 
+export interface RispostaGenerata {
+  risposta: string;
+  fonti: Risultato[];
+}
+
 const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:8000";
 
-export async function cerca(domanda: string, k = 5): Promise<Risultato[]> {
-  const url = new URL("/cerca", API_URL);
+async function chiamaApi<T>(percorso: string, domanda: string, k: number): Promise<T> {
+  const url = new URL(percorso, API_URL);
   url.searchParams.set("domanda", domanda);
   url.searchParams.set("k", String(k));
 
@@ -24,4 +29,15 @@ export async function cerca(domanda: string, k = 5): Promise<Risultato[]> {
     throw new Error(corpo?.detail ?? `Errore ${risposta.status} dal server`);
   }
   return risposta.json();
+}
+
+export function cerca(domanda: string, k = 5): Promise<Risultato[]> {
+  return chiamaApi<Risultato[]>("/cerca", domanda, k);
+}
+
+// Ricerca + risposta scritta da un LLM locale, che legge SOLO le fonti
+// recuperate (vedi retrieval/genera.py). Le fonti tornano comunque
+// intere: la risposta va verificata contro quelle, non presa per buona.
+export function rispondi(domanda: string, k = 5): Promise<RispostaGenerata> {
+  return chiamaApi<RispostaGenerata>("/rispondi", domanda, k);
 }
