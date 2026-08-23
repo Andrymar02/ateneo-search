@@ -1,10 +1,11 @@
 # ateneo-search
 
 Un sistema RAG (retrieval-augmented) che indicizza materiali universitari
-(PDF, slide) e risponde a domande recuperando i passaggi più pertinenti,
-**citando sempre file e pagina di origine**. Nessuna generazione di testo:
-la risposta è il contenuto reale del PDF, non una riscrittura — la
-citazione è quindi sempre verificabile, per costruzione.
+(PDF, slide) e risponde a domande in linguaggio naturale, **citando
+sempre file e pagina di origine**. Un LLM locale scrive la risposta,
+ma legge SOLO i passaggi recuperati dalla ricerca — e quei passaggi
+restano sempre visibili accanto alla risposta, così la citazione è
+sempre verificabile contro il testo originale, non solo dichiarata.
 
 Progetto personale per il mio portfolio (Ingegneria Informatica, AI e Data
 Analytics, Politecnico di Torino). Gira interamente in locale: nessuna
@@ -15,15 +16,16 @@ chiave API, nessun servizio esterno.
 - **pdfplumber** — estrazione del testo dai PDF, pagina per pagina
 - **sentence-transformers** (`BAAI/bge-m3`) — embedding, in locale
 - **SQLite + sqlite-vec** — indice vettoriale, un file per configurazione testata
-- **FastAPI** — API di ricerca
-- **React** (Vite + TypeScript) — interfaccia di ricerca
+- **Ollama** (`llama3.1:8b`) — generazione della risposta, in locale
+- **FastAPI** — API di ricerca e risposta
+- **React** (Vite + TypeScript) — interfaccia
 
 ## Struttura
 
 ```
 ingestione/          estrazione PDF, chunking, indicizzazione
-retrieval/            ricerca vettoriale + ibrida (vettoriale+FTS5/RRF), unico punto di verità, riusato da eval/ e api/
-api/                  API FastAPI (GET /cerca)
+retrieval/            ricerca vettoriale + ibrida (vettoriale+FTS5/RRF) e generazione via Ollama, unico punto di verità, riusato da eval/ e api/
+api/                  API FastAPI (GET /cerca ricerca pura, GET /rispondi ricerca + risposta generata)
 eval/                 domande con fonte attesa + script di misura del recall
 tests/                test automatici (pytest) su chunking ed estrazione
 frontend/             interfaccia di ricerca (React + Vite + TypeScript)
@@ -41,6 +43,14 @@ python3 -m venv .venv --upgrade-deps
 Richiede un Python il cui modulo `sqlite3` supporti il caricamento di
 estensioni (`enable_load_extension`), necessario per sqlite-vec: il
 Python di sistema di Apple (Command Line Tools) **non** lo supporta.
+
+Serve anche [Ollama](https://ollama.com) per la generazione delle
+risposte, in locale:
+```bash
+brew install ollama
+brew services start ollama   # o: ollama serve
+ollama pull llama3.1:8b      # ~4.9GB, una volta sola
+```
 
 Nei comandi qui sotto uso sempre `.venv/bin/python -m ...` invece di
 `source .venv/bin/activate` + comando nudo: se conda è installato e
@@ -62,6 +72,8 @@ cp .env.example .env   # personalizza INDICE_DB se serve
 .venv/bin/python -m uvicorn api.main:app --reload
 
 # 4. interroga (da riga di comando, o con l'interfaccia — vedi sotto)
+curl "http://127.0.0.1:8000/rispondi?domanda=cosa+sono+le+liste+in+python&k=5"
+# /cerca resta disponibile per la sola ricerca, senza generazione:
 curl "http://127.0.0.1:8000/cerca?domanda=cosa+sono+le+liste+in+python&k=5"
 ```
 
