@@ -1,8 +1,12 @@
-"""API di ricerca su ateneo-search.
+"""API di ricerca e risposta su ateneo-search.
 
-Nessuna generazione di testo: ogni risultato è un chunk reale, con la
-sua fonte esatta (file + intervallo di pagine). Niente da verificare
-sul fatto che la risposta sia "inventata" — è testo del PDF originale.
+/cerca: ricerca vettoriale pura, ogni risultato è un chunk reale del
+PDF, con la sua fonte esatta (file + intervallo di pagine).
+
+/rispondi: fa la stessa ricerca, poi chiede a un LLM locale (Ollama)
+di scrivere una risposta usando SOLO quei chunk (retrieval/genera.py).
+Restituisce sempre anche i chunk grezzi usati: la risposta generata
+resta verificabile contro il testo originale, non lo sostituisce.
 """
 
 import os
@@ -15,6 +19,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sentence_transformers import SentenceTransformer
 
 from retrieval.cerca import apri_connessione, cerca, leggi_modello
+from retrieval.genera import genera_risposta
 
 load_dotenv()
 
@@ -59,3 +64,17 @@ def endpoint_cerca(domanda: str, k: int = 5) -> list[dict]:
         return cerca(conn, stato["modello"], domanda, k)
     finally:
         conn.close()
+
+
+@app.get("/rispondi")
+def endpoint_rispondi(domanda: str, k: int = 5) -> dict:
+    if not domanda.strip():
+        raise HTTPException(status_code=400, detail="domanda vuota")
+
+    conn = apri_connessione(PERCORSO_INDICE)
+    try:
+        fonti = cerca(conn, stato["modello"], domanda, k)
+    finally:
+        conn.close()
+
+    return {"risposta": genera_risposta(domanda, fonti), "fonti": fonti}
