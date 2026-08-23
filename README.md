@@ -16,7 +16,7 @@ chiave API, nessun servizio esterno.
 - **sentence-transformers** (`BAAI/bge-m3`) — embedding, in locale
 - **SQLite + sqlite-vec** — indice vettoriale, un file per configurazione testata
 - **FastAPI** — API di ricerca
-- **React** — interfaccia (ultimo pezzo, non ancora fatto)
+- **React** (Vite + TypeScript) — interfaccia di ricerca
 
 ## Struttura
 
@@ -26,6 +26,7 @@ retrieval/            ricerca vettoriale + ibrida (vettoriale+FTS5/RRF), unico p
 api/                  API FastAPI (GET /cerca)
 eval/                 domande con fonte attesa + script di misura del recall
 tests/                test automatici (pytest) su chunking ed estrazione
+frontend/             interfaccia di ricerca (React + Vite + TypeScript)
 data/                 PDF originali e indici generati — MAI versionati (vedi sotto)
 ```
 
@@ -60,9 +61,22 @@ percorso esplicito lo evita del tutto.
 cp .env.example .env   # personalizza INDICE_DB se serve
 .venv/bin/python -m uvicorn api.main:app --reload
 
-# 4. interroga
+# 4. interroga (da riga di comando, o con l'interfaccia — vedi sotto)
 curl "http://127.0.0.1:8000/cerca?domanda=cosa+sono+le+liste+in+python&k=5"
 ```
+
+### Interfaccia web
+
+Con l'API già avviata (serve per il CORS: l'origine di default è
+`http://localhost:5173`, la porta di Vite):
+
+```bash
+cd frontend
+npm install       # solo la prima volta
+npm run dev
+```
+
+Apri l'indirizzo che stampa (di norma `http://localhost:5173`).
 
 ## Valutazione
 
