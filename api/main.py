@@ -77,4 +77,13 @@ def endpoint_rispondi(domanda: str, k: int = 5) -> dict:
     finally:
         conn.close()
 
-    return {"risposta": genera_risposta(domanda, fonti), "fonti": fonti}
+    try:
+        risposta = genera_risposta(domanda, fonti)
+    except ConnectionError as errore:
+        raise HTTPException(
+            status_code=503,
+            detail="Il modello locale (Ollama) non è raggiungibile. "
+            "Avvialo con: brew services start ollama",
+        ) from errore
+
+    return {"risposta": risposta, "fonti": fonti}
