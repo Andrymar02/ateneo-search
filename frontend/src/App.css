@@ -3,7 +3,8 @@
   margin: 0 auto;
   padding: 2.5rem 1.5rem;
   font-family: system-ui, -apple-system, sans-serif;
-  color: #1a1a1a;
+  color: var(--testo);
+  background: var(--bg);
 }
 
 h1 {
@@ -12,7 +13,7 @@ h1 {
 }
 
 .sottotitolo {
-  color: #555;
+  color: var(--testo-secondario);
   font-size: 0.9rem;
   line-height: 1.4;
   margin-bottom: 1.5rem;
@@ -28,8 +29,10 @@ h1 {
   flex: 1;
   padding: 0.6rem 0.8rem;
   font-size: 1rem;
-  border: 1px solid #ccc;
+  border: 1px solid var(--bordo-input);
   border-radius: 6px;
+  background: var(--bg);
+  color: var(--testo);
 }
 
 .form-ricerca button {
@@ -37,8 +40,8 @@ h1 {
   font-size: 1rem;
   border: none;
   border-radius: 6px;
-  background: #1a1a1a;
-  color: white;
+  background: var(--bottone-bg);
+  color: var(--bottone-testo);
   cursor: pointer;
 }
 
@@ -48,12 +51,12 @@ h1 {
 }
 
 .errore {
-  color: #b00020;
+  color: var(--errore);
   font-size: 0.9rem;
 }
 
 .vuoto {
-  color: #777;
+  color: var(--testo-secondario);
   font-size: 0.9rem;
 }
 
@@ -66,7 +69,7 @@ h1 {
 }
 
 .risultato {
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--bordo);
   border-radius: 8px;
   padding: 0.9rem 1rem;
 }
@@ -74,7 +77,7 @@ h1 {
 .citazione {
   font-size: 0.8rem;
   font-weight: 600;
-  color: #555;
+  color: var(--testo-secondario);
   margin-bottom: 0.4rem;
 }
 
@@ -83,4 +86,5 @@ h1 {
   line-height: 1.5;
   white-space: pre-wrap;
   margin: 0;
+  color: var(--testo);
 }

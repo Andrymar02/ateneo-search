@@ -1,5 +1,27 @@
 :root {
   color-scheme: light dark;
+
+  --bg: #ffffff;
+  --testo: #1a1a1a;
+  --testo-secondario: #555555;
+  --bordo: #e0e0e0;
+  --bordo-input: #cccccc;
+  --bottone-bg: #1a1a1a;
+  --bottone-testo: #ffffff;
+  --errore: #b00020;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #16171d;
+    --testo: #e8e8ea;
+    --testo-secondario: #a6a6ad;
+    --bordo: #33343d;
+    --bordo-input: #45464f;
+    --bottone-bg: #e8e8ea;
+    --bottone-testo: #16171d;
+    --errore: #ff8080;
+  }
 }
 
 * {
@@ -8,4 +30,6 @@
 
 body {
   margin: 0;
+  background: var(--bg);
+  color: var(--testo);
 }
